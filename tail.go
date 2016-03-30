@@ -23,6 +23,7 @@ var (
 	ErrStop = fmt.Errorf("tail should now stop")
 )
 
+// Line contains the line read from the file, along with a timestamp and an error if necessary.
 type Line struct {
 	Text string
 	Time time.Time
@@ -71,6 +72,7 @@ type Config struct {
 	Logger logger
 }
 
+// Tail contains info. related to the item being tailed.
 type Tail struct {
 	Filename string
 	Lines    chan *Line
@@ -94,11 +96,11 @@ var (
 	DiscardingLogger = log.New(ioutil.Discard, "", 0)
 )
 
-// TailFile begins tailing the file. Output stream is made available
+// File begins tailing the file. Output stream is made available
 // via the `Tail.Lines` channel. To handle errors during tailing,
 // invoke the `Wait` or `Err` method after finishing reading from the
 // `Lines` channel.
-func TailFile(filename string, config Config) (*Tail, error) {
+func File(filename string, config Config) (*Tail, error) {
 	if config.ReOpen && !config.Follow {
 		util.Fatal("cannot set ReOpen without Follow.")
 	}
@@ -133,7 +135,7 @@ func TailFile(filename string, config Config) (*Tail, error) {
 	return t, nil
 }
 
-// Return the file's current position, like stdio's ftell().
+// Tell returns the file's current position, like stdio's ftell().
 // But this value is not very accurate.
 // it may readed one line in the chan(tail.Lines),
 // so it may lost one line.
@@ -234,7 +236,7 @@ func (tail *Tail) tailFileSync() {
 
 	tail.openReader()
 
-	var offset int64 = 0
+	var offset int64
 	var err error
 	// Read line by line.
 	for {
@@ -342,10 +344,10 @@ func (tail *Tail) waitForChanges() error {
 			tail.Logger.Printf("Successfully reopened %s", tail.Filename)
 			tail.openReader()
 			return nil
-		} else {
-			tail.Logger.Printf("Stopping tail as file no longer exists: %s", tail.Filename)
-			return ErrStop
 		}
+
+		tail.Logger.Printf("Stopping tail as file no longer exists: %s", tail.Filename)
+		return ErrStop
 	case <-tail.changes.Truncated:
 		// Always reopen truncated files (Follow is true)
 		tail.Logger.Printf("Re-opening truncated file %s ...", tail.Filename)
@@ -358,7 +360,6 @@ func (tail *Tail) waitForChanges() error {
 	case <-tail.Dying():
 		return ErrStop
 	}
-	panic("unreachable")
 }
 
 func (tail *Tail) openReader() {
