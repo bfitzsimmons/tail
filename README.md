@@ -2,7 +2,7 @@
 
 # Go package for tail-ing files
 
-A Go package striving to emulate the features of the BSD `tail` program. 
+A Go package striving to emulate the features of the BSD `tail` program.
 
 ```Go
 t, err := tail.TailFile("/var/log/nginx.log", tail.Config{Follow: true})
