@@ -160,10 +160,10 @@ func (tail *Tail) Stop() error {
 
 func (tail *Tail) close() {
 	close(tail.Lines)
-	tail.colseFile()
+	tail.closeFile()
 }
 
-func (tail *Tail) colseFile() {
+func (tail *Tail) closeFile() {
 	if tail.file != nil {
 		tail.file.Close()
 		tail.file = nil
@@ -171,7 +171,7 @@ func (tail *Tail) colseFile() {
 }
 
 func (tail *Tail) reopen() error {
-	tail.colseFile()
+	tail.closeFile()
 	for {
 		var err error
 		tail.file, err = OpenFile(tail.Filename)
