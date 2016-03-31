@@ -38,7 +38,6 @@ func (fw *PollingFileWatcher) BlockUntilExists(t *tomb.Tomb) error {
 			return tomb.ErrDying
 		}
 	}
-	panic("unreachable")
 }
 
 func (fw *PollingFileWatcher) ChangeEvents(t *tomb.Tomb, pos int64) (*FileChanges, error) {
@@ -78,7 +77,7 @@ func (fw *PollingFileWatcher) ChangeEvents(t *tomb.Tomb, pos int64) (*FileChange
 				}
 
 				// XXX: report this error back to the user
-				util.Fatal("Failed to stat file %v: %v", fw.Filename, err)
+				util.Fatal("Failed to stat file %s: %s", fw.Filename, err.Error())
 			}
 
 			// File got moved/renamed?

@@ -63,9 +63,9 @@ func Watch(fname string) error {
 	})
 }
 
-// Watch create signals the run goroutine to begin watching the input filename
-// if call the WatchCreate function, don't call the Cleanup, call the RemoveWatchCreate
-func WatchCreate(fname string) error {
+// Create create signals the run goroutine to begin watching the input filename if call the Create function, don't call
+// the Cleanup, call the RemoveWatchCreate.
+func Create(fname string) error {
 	return watch(&watchInfo{
 		op:    fsnotify.Create,
 		fname: fname,

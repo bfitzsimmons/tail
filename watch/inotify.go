@@ -25,7 +25,7 @@ func NewInotifyFileWatcher(filename string) *InotifyFileWatcher {
 }
 
 func (fw *InotifyFileWatcher) BlockUntilExists(t *tomb.Tomb) error {
-	err := WatchCreate(fw.Filename)
+	err := Create(fw.Filename)
 	if err != nil {
 		return err
 	}
@@ -52,7 +52,6 @@ func (fw *InotifyFileWatcher) BlockUntilExists(t *tomb.Tomb) error {
 			return tomb.ErrDying
 		}
 	}
-	panic("unreachable")
 }
 
 func (fw *InotifyFileWatcher) ChangeEvents(t *tomb.Tomb, pos int64) (*FileChanges, error) {
@@ -101,7 +100,7 @@ func (fw *InotifyFileWatcher) ChangeEvents(t *tomb.Tomb, pos int64) (*FileChange
 						return
 					}
 					// XXX: report this error back to the user
-					util.Fatal("Failed to stat file %v: %v", fw.Filename, err)
+					util.Fatal("Failed to stat file %s: %v", fw.Filename, err)
 				}
 				fw.Size = fi.Size()
 

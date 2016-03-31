@@ -1,14 +1,19 @@
 package watch
 
+// FileChanges contains the channels that will accept notifications of the different file changes.
 type FileChanges struct {
 	Modified  chan bool // Channel to get notified of modifications
 	Truncated chan bool // Channel to get notified of truncations
 	Deleted   chan bool // Channel to get notified of deletions/renames
 }
 
+// NewFileChanges returns *FileChanges with all of its channels created.
 func NewFileChanges() *FileChanges {
 	return &FileChanges{
-		make(chan bool), make(chan bool), make(chan bool)}
+		Modified:  make(chan bool),
+		Truncated: make(chan bool),
+		Deleted:   make(chan bool),
+	}
 }
 
 func (fc *FileChanges) NotifyModified() {

@@ -5,7 +5,3 @@ test:	*.go
 
 fmt:
 	gofmt -w .
-
-# Run the test in an isolated environment.
-fulltest:
-	docker build -t hpcloud/tail .

@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"./watch"
-	"github.com/hpcloud/tail/ratelimiter"
 )
 
 func init() {
@@ -26,17 +25,17 @@ func init() {
 }
 
 func TestMustExist(t *testing.T) {
-	tail, err := TailFile("/no/such/file", Config{Follow: true, MustExist: true})
+	tail, err := File("/no/such/file", Config{Follow: true, MustExist: true})
 	if err == nil {
 		t.Error("MustExist:true is violated")
 		tail.Stop()
 	}
-	tail, err = TailFile("/no/such/file", Config{Follow: true, MustExist: false})
+	tail, err = File("/no/such/file", Config{Follow: true, MustExist: false})
 	if err != nil {
 		t.Error("MustExist:false is violated")
 	}
 	tail.Stop()
-	_, err = TailFile("README.md", Config{Follow: true, MustExist: true})
+	_, err = File("README.md", Config{Follow: true, MustExist: true})
 	if err != nil {
 		t.Error("MustExist:true on an existing file is violated")
 	}
@@ -45,7 +44,7 @@ func TestMustExist(t *testing.T) {
 }
 
 func TestStop(t *testing.T) {
-	tail, err := TailFile("_no_such_file", Config{Follow: true, MustExist: false})
+	tail, err := File("_no_such_file", Config{Follow: true, MustExist: false})
 	if err != nil {
 		t.Error("MustExist:false is violated")
 	}
@@ -58,7 +57,7 @@ func TestStop(t *testing.T) {
 func MaxLineSizeT(_t *testing.T, follow bool, fileContent string, expected []string) {
 	t := NewTailTest("maxlinesize", _t)
 	t.CreateFile("test.txt", fileContent)
-	tail := t.StartTail("test.txt", Config{Follow: follow, Location: nil, MaxLineSize: 3})
+	tail := t.StartTail("test.txt", Config{Follow: follow, Location: nil})
 	go t.VerifyTailOutput(tail, expected)
 
 	// Delete after a reasonable delay, to give tail sufficient time
@@ -96,7 +95,7 @@ func TestOver4096ByteLineWithSetMaxLineSize(_t *testing.T) {
 	t := NewTailTest("Over4096ByteLineMaxLineSize", _t)
 	testString := strings.Repeat("a", 4097)
 	t.CreateFile("test.txt", "test\n"+testString+"\nhello\nworld\n")
-	tail := t.StartTail("test.txt", Config{Follow: true, Location: nil, MaxLineSize: 4097})
+	tail := t.StartTail("test.txt", Config{Follow: true, Location: nil})
 	go t.VerifyTailOutput(tail, []string{"test", testString, "hello", "world"})
 
 	// Delete after a reasonable delay, to give tail sufficient time
@@ -271,9 +270,7 @@ func TestReSeekPolling(_t *testing.T) {
 func TestRateLimiting(_t *testing.T) {
 	t := NewTailTest("rate-limiting", _t)
 	t.CreateFile("test.txt", "hello\nworld\nagain\nextra\n")
-	config := Config{
-		Follow:      true,
-		RateLimiter: ratelimiter.NewLeakyBucket(2, time.Second)}
+	config := Config{Follow: true}
 	leakybucketFull := "Too much log activity; waiting a second before resuming tailing"
 	tail := t.StartTail("test.txt", config)
 
@@ -423,7 +420,7 @@ func (t TailTest) TruncateFile(name string, contents string) {
 }
 
 func (t TailTest) StartTail(name string, config Config) *Tail {
-	tail, err := TailFile(t.path+"/"+name, config)
+	tail, err := File(t.path+"/"+name, config)
 	if err != nil {
 		t.Fatal(err)
 	}
